@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+	<div class="row">
+		{% for dino in dinos %}
+		<div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 mb-3">
+			<div class="card">
+				<img src="{{ dino['img'] }}" class="card-img-top">
+				<div class="card-body">
+					<h5 class="card-title">{{ dino['name'] }}</h5>
+					<p class="card-text">{{ dino['content'][0:255] + '...' }}</p>
+					<a href="{{ url_for('dino.show', id=dino['id'] ) }}" class="btn btn-primary">See more</a>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}

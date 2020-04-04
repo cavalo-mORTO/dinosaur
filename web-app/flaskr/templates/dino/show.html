@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+	<div class="row">
+		<div class="col-lg-12">
+			<h2>{{ data['name'] }}</h2>
+		</div>
+		<div class="col-lg-12">
+			<img src="{{ data['img'] }}">
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-lg-12">
+			{% for p in data['content'] %}
+			<p>{{ p }}</p>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+DROP TABLE IF EXISTS dino;
+
+CREATE TABLE dino (
+	id		INTEGER PRIMARY KEY AUTOINCREMENT,
+	name		TEXT UNIQUE NOT NULL,
+	content		TEXT NOT NULL,
+	img		TEXT,
+	parent_id	INTEGER,
+
+	FOREIGN KEY (parent_id) REFERENCES dino (id)
+);
+
+
+DROP TABLE IF EXISTS img;
