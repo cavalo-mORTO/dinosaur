@@ -1,1 +1,1 @@
-data = ['Alosaurus', 'Tyrannosaurus', 'Tarbosaurus', 'Nemegtosaurus']
+data = ['Allosaurus', 'Tyrannosaurus', 'Tarbosaurus', 'Nemegtosaurus']

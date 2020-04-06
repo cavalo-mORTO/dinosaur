@@ -14,39 +14,68 @@ def index():
         name = ''
 
     db = get_db()
-    dinos = db.execute(
-            'SELECT * FROM dino WHERE name LIKE ?', ('%' + name + '%',)
-             ).fetchall()
-    return render_template('dino/index.html', dinos=dinos, )
+    dinos = db.execute('''
+            SELECT d.id, name, img, text
+            FROM dino d LEFT JOIN content c ON c.dino_id = d.id
+            WHERE d.id IN (SELECT id FROM dino WHERE name LIKE ?)
+            GROUP BY d.id ''', (name + '%',)
+            ).fetchall()
 
+    if not dinos:
+        abort(404)
+
+    return render_template('dino/index.html', dinos=dinos, )
 
 @bp.route('/create', methods=('GET', 'POST'))
 def create():
     if request.method == 'POST':
-        name = request.form['name']
-        content = request.form['content']
-        parent = request.form['parent']
-        img = request.form['img']
         error = None
 
-        if not name:
-            error = 'Need a name.'
+        data = request.json
+        name = data['name']
+        contents = data['content']
+        parent = data['parent']
+        img = data['img']
 
-        if not content:
-            error += 'Need a content.'
+
+        db = get_db()
+        exists = db.execute(
+                'SELECT * FROM dino WHERE name = ?', (name,)
+                ).fetchone()
+
+        if exists:
+            error = 'Dinosaur already exists.'
+        elif not name:
+            error = 'Need a name.'
+        elif not contents:
+            error = 'Need contents.'
 
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            parent_id = db.execute(
+            parent = db.execute(
                     'SELECT * FROM dino WHERE name = ?', (parent,)
                     ).fetchone()
-            db.execute(
-                    'INSERT INTO dino (name, content, img, parent_id)'
-                    ' VALUES (?, ?, ?, ?)',
-                    (name, content, img, parent_id,)
+
+            try:
+                parent_id = parent['id']
+            except TypeError:
+                parent_id = None
+
+            dino = db.execute(
+                    'INSERT INTO dino (name, img, parent_id)'
+                    ' VALUES (?, ?, ?)',
+                    (name, img, parent_id,)
                     )
+            db.commit()
+
+
+            for c in contents:
+                db.execute(
+                        'INSERT INTO content (title, text, dino_id)'
+                        ' VALUES (?, ?, ?)',
+                        (c['title'], c['text'], dino.lastrowid,)
+                        )
             db.commit()
 
             return redirect(url_for('dino.index'))
@@ -56,13 +85,25 @@ def create():
 @bp.route('<int:id>/show')
 def show(id):
     db = get_db()
-    dino = db.execute(
-            'SELECT * FROM dino WHERE id = ?', (id,)
-            ).fetchone()
+    dino = db.execute('''
+            SELECT name, img, title, text, parent_id
+            FROM dino d LEFT JOIN content c ON c.dino_id = d.id
+            WHERE d.id = ? ''', (id,)
+            ).fetchall()
+
+    parents = []
+    p = db.execute('SELECT * FROM dino WHERE id = ?', (dino[0]['parent_id'],)).fetchone()
+    while p is not None:
+        parents.append(p)
+        p = db.execute('SELECT * FROM dino WHERE id = ?', (p['parent_id'],)).fetchone()
+
+
 
     data = {}
-    data['img'] = dino['img']
-    data['name'] = dino['name']
-    data['content'] = dino['content'].split('\n')
+    data['parents'] = parents
+    data['img'] = dino[0]['img']
+    data['name'] = dino[0]['name']
+
+    data['content'] = [x for x in map(lambda d: {'title': d['title'], 'text': d['text'].split('\n')}, dino)]
 
     return render_template('dino/show.html', data=data,)

@@ -5,12 +5,12 @@
 	<div class="row">
 		{% for dino in dinos %}
 		<div class="col-lg-4 col-md-6 col-sm-6 col-xs-12 mb-3">
-			<div class="card">
+			<div class="card h-100">
 				<img src="{{ dino['img'] }}" class="card-img-top">
-				<div class="card-body">
+				<div class="card-body d-flex align-items-start flex-column">
 					<h5 class="card-title">{{ dino['name'] }}</h5>
-					<p class="card-text">{{ dino['content'][0:255] + '...' }}</p>
-					<a href="{{ url_for('dino.show', id=dino['id'] ) }}" class="btn btn-primary">See more</a>
+					<p class="card-text">{{ dino['text'][0:255] + '...' if dino['text'] != None }}</p>
+					<a href="{{ url_for('dino.show', id=dino['id'] ) }}" class="btn btn-primary mt-auto">See more</a>
 				</div>
 			</div>
 		</div>
