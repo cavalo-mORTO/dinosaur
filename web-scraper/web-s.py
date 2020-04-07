@@ -43,12 +43,9 @@ def create_branch(driver, name, parent=''):
     text = ''
 
     for elem in main.findAll(['h2', 'h3', 'p', 'ul'], recursive=False):
-        if elem.text == "References[edit]":
-            break
-
-
+        
         if elem.name in ["p", "ul"]:
-            new_text = regexp.sub(r'\[[0-9]*\]', '', elem.text)
+            new_text = regexp.sub(r'\[.*\]', '', elem.text)
             text += new_text
         elif elem.name in ["h2", "h3"]:
             try:
@@ -59,6 +56,11 @@ def create_branch(driver, name, parent=''):
 
             list_of_texts.append({'title': title, 'text': text})
             text = ''
+
+        
+        if elem.text in ["References[edit]", "References", "See also[edit]", "See also", "Notes[edit]", "Notes"]:
+            break
+
 
     soup.decompose()
     
