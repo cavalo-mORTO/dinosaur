@@ -1,3 +1,5 @@
+import re as regexp
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
@@ -85,25 +87,35 @@ def create():
 @bp.route('<int:id>/show')
 def show(id):
     db = get_db()
-    dino = db.execute('''
+    contents = db.execute('''
             SELECT name, img, title, text, parent_id
             FROM dino d LEFT JOIN content c ON c.dino_id = d.id
             WHERE d.id = ? ''', (id,)
             ).fetchall()
 
+    if not contents:
+        abort(404)
+
     parents = []
-    p = db.execute('SELECT * FROM dino WHERE id = ?', (dino[0]['parent_id'],)).fetchone()
+    p = db.execute('SELECT * FROM dino WHERE id = ?', (contents[0]['parent_id'],)).fetchone()
     while p is not None:
         parents.append(p)
         p = db.execute('SELECT * FROM dino WHERE id = ?', (p['parent_id'],)).fetchone()
 
 
-
     data = {}
     data['parents'] = parents
-    data['img'] = dino[0]['img']
-    data['name'] = dino[0]['name']
+    data['img'] = contents[0]['img']
+    data['name'] = contents[0]['name']
 
-    data['content'] = [x for x in map(lambda d: {'title': d['title'], 'text': d['text'].split('\n')}, dino)]
+    data['content'] = [
+            x for x in map(
+                lambda d:
+                {
+                    'title_id': regexp.sub(r'[^a-zA-Z0-9]', '', d['title'] or 'none'),
+                    'title': d['title'],
+                    'text': d['text'].split('\n')
+                }, contents)
+            ]
 
     return render_template('dino/show.html', data=data,)
