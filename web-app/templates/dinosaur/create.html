@@ -14,11 +14,11 @@
 		</div>
 		<div class="form-group row">
 			<label class="col-lg-2 col-form-label" for="title">Title</label>
-    			<input class="col-lg-10 form-control" name="title" id="title" value="{{ request.json['content']['title'] }}" required>
+    			<input class="col-lg-10 form-control" name="title" id="title" value="{{ request.json['content'] }}" required>
 		</div>
 		<div class="form-group row">
 			<label class="col-lg-2 col-form-label" for="text">Text</label>
-			<textarea class="col-lg-10 form-control" name="text" id="text" rows="6" value="{{ request.json['content']['text'] }}" required></textarea>
+			<textarea class="col-lg-10 form-control" name="text" id="text" rows="6" value="{{ request.json['content'] }}" required></textarea>
 		</div>
 		<div class="form-group row">
 			<label class="col-lg-2 col-form-label" for="parent">Parent</label>

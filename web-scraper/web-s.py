@@ -13,7 +13,7 @@ def main():
     driver = webdriver.Chrome(chrome_driver_binary, options=options)
 
     url = "https://en.wikipedia.org/wiki/"
-    api = "http://localhost:5000/dino"
+    api = "http://localhost:5000/dinosaur"
 
     for d in data:
         driver.get(url + d)
@@ -40,7 +40,7 @@ def main():
             print('Got ' + branch + ' with code '  +  str(re.status_code))
             if re.status_code == 404:
                 parent = tree[i - 1]
-                print(create_branch(driver, branch, parent))
+                print(create_branch(driver, branch, url, api, parent))
 
 
 
@@ -63,13 +63,10 @@ def family_tree(content):
 
     return parents
 
-def create_branch(driver, name, parent=''):
-    url = "https://en.wikipedia.org/wiki/"
-    api = "http://localhost:5000/dino"
-
+def create_branch(driver, name, url, api, parent=''):
     req = requests.get(url + name)
     if req.status_code != 200:
-        return 'Dinosaur not found! status code: ' + str(req.status_code)
+        return 'Dinosaur not found! Status code: ' + str(req.status_code)
 
 
     driver.get(url + name)
